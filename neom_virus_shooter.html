@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Neom Virus Shooter - Android Cyber Edition</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            touch-action: none;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #030712;
+            color: #00f3ff;
+            font-family: 'Rajdhani', sans-serif;
+            overscroll-behavior: none;
+        }
+
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Neon Glow Utility Effects */
+        .glow-cyan {
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.7), 0 0 20px rgba(0, 243, 255, 0.4);
+        }
+        .glow-green {
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.7), 0 0 20px rgba(0, 255, 136, 0.4);
+        }
+        .glow-pink {
+            text-shadow: 0 0 10px rgba(255, 0, 127, 0.7), 0 0 20px rgba(255, 0, 127, 0.4);
+        }
+        .box-glow-cyan {
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3), inset 0 0 15px rgba(0, 243, 255, 0.15);
+            border: 1px solid rgba(0, 243, 255, 0.5);
+        }
+        .box-glow-green {
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.3), inset 0 0 15px rgba(0, 255, 136, 0.15);
+            border: 1px solid rgba(0, 255, 136, 0.5);
+        }
+
+        /* Game Container Aspect Frame */
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #0a1128 0%, #030712 100%);
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* HUD Glassmorphism */
+        .hud-glass {
+            background: rgba(6, 12, 24, 0.75);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(0, 243, 255, 0.25);
+            border-radius: 12px;
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(3, 7, 18, 0.8);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #00f3ff;
+            border-radius: 4px;
+        }
+
+        /* Mobile Joystick Styles */
+        #joystickBase {
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, rgba(0, 243, 255, 0.15) 0%, rgba(0, 0, 0, 0.4) 100%);
+            border: 2px dashed rgba(0, 243, 255, 0.5);
+            border-radius: 50%;
+            position: absolute;
+            bottom: 24px;
+            left: 24px;
+            z-index: 30;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+        }
+
+        #joystickStick {
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle, #00f3ff 0%, #007799 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 15px #00f3ff;
+            position: absolute;
+            transform: translate(0px, 0px);
+            pointer-events: none;
+        }
+
+        /* Mobile Fire Button */
+        #fireButton {
+            width: 85px;
+            height: 85px;
+            background: radial-gradient(circle, #ff007f 0%, #880044 100%);
+            border: 2px solid #ff66b2;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 30px;
+            right: 28px;
+            z-index: 30;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 25px rgba(255, 0, 127, 0.5);
+            color: #ffffff;
+            font-weight: 800;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: transform 0.08s ease, filter 0.08s ease;
+        }
+
+        #fireButton:active {
+            transform: scale(0.92);
+            filter: brightness(1.3);
+            box-shadow: 0 0 35px rgba(255, 0, 127, 0.8);
+        }
+
+        /* Floating Banner Alerts */
+        .surge-alert {
+            animation: pulseBanner 1s infinite alternate;
+        }
+        @keyframes pulseBanner {
+            0% { transform: translateX(-50%) scale(1); opacity: 0.9; }
+            100% { transform: translateX(-50%) scale(1.05); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="gameContainer">
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- TOP HUD BAR -->
+    <div class="absolute top-2 left-2 right-2 flex justify-between items-center z-20 pointer-events-none gap-2">
+        
+        <!-- Player Profile Badge -->
+        <div id="hudProfile" class="hud-glass p-1.5 px-3 flex items-center gap-2 pointer-events-auto cursor-pointer hover:border-cyan-400 transition" onclick="openProfileEdit()">
+            <div id="hudAvatar" class="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-orbitron font-bold text-white text-sm shadow-md">
+                ?
+            </div>
+            <div class="flex flex-col leading-tight">
+                <div class="flex items-center gap-1">
+                    <span id="hudPlayerName" class="font-orbitron font-bold text-xs text-cyan-300 truncate max-w-[90px]">GUEST</span>
+                    <span id="hudFlag" class="text-xs">🌐</span>
+                </div>
+                <span id="hudCountry" class="text-[10px] text-gray-400 font-semibold tracking-wider uppercase">GLOBAL</span>
+            </div>
+        </div>
+
+        <!-- Live World Rank Badge -->
+        <div class="hud-glass px-3 py-1 flex items-center gap-2 border-emerald-500/50 box-glow-green">
+            <i class="fa-solid font-bold text-emerald-400 text-xs fa-trophy"></i>
+            <div class="flex flex-col items-center">
+                <span class="text-[9px] text-emerald-400 font-bold uppercase tracking-widest leading-none">WORLD RANK</span>
+                <span id="hudLiveRank" class="font-orbitron font-extrabold text-sm text-white glow-green leading-tight">#--</span>
+            </div>
+        </div>
+
+        <!-- Score & Stats Box -->
+        <div class="hud-glass px-3 py-1 flex flex-col items-end leading-tight">
+            <div class="flex items-center gap-1.5">
+                <span class="text-[10px] text-cyan-400 font-bold">SCORE</span>
+                <span id="hudScore" class="font-orbitron font-extrabold text-base text-cyan-300 glow-cyan">0</span>
+            </div>
+            <div class="flex items-center gap-2 text-[10px] text-gray-300">
+                <span id="hudTimer" class="text-amber-400 font-mono font-bold">⏱️ 00:00</span>
+                <span id="hudKills" class="text-cyan-400 font-bold">🎯 0/20</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEALTH BAR & ACTIVE BUFFS -->
+    <div class="absolute top-16 left-3 right-3 flex flex-col gap-1 z-20 pointer-events-none">
+        <div class="flex items-center justify-between text-xs font-bold text-gray-300 px-1">
+            <span class="flex items-center gap-1 text-emerald-400">
+                <i class="fa-solid fa-heart-pulse"></i> SHIELD HP
+            </span>
+            <span id="hudHpText" class="font-orbitron text-emerald-300">150 / 150</span>
+        </div>
+        <div class="w-full h-3 bg-gray-950/80 rounded-full border border-emerald-500/40 p-0.5 shadow-inner overflow-hidden">
+            <div id="hudHpFill" class="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 rounded-full transition-all duration-200" style="width: 100%;"></div>
+        </div>
+        
+        <!-- Active Buff Status Pills -->
+        <div id="buffContainer" class="flex gap-1.5 mt-1"></div>
+    </div>
+
+    <!-- Surge Event Banner -->
+    <div id="surgeBanner" class="surge-alert absolute top-28 left-1/2 -translate-x-1/2 bg-red-600/90 text-white font-orbitron font-bold text-xs px-4 py-1.5 rounded-full border border-red-300 shadow-lg shadow-red-600/50 hidden z-20 pointer-events-none text-center whitespace-nowrap">
+        ⚠️ VIRUS SURGE ACTIVE! (+30% COUNT, +25% SPEED)
+    </div>
+
+    <!-- Touch Joystick & Fire Button -->
+    <div id="joystickBase">
+        <div id="joystickStick"></div>
+    </div>
+    <div id="fireButton">
+        <i class="fa-solid fa-crosshairs text-xl mb-0.5"></i>
+        <span class="text-[10px]">FIRE</span>
+    </div>
+
+
+    <!-- PLAYER REGISTRATION MODAL -->
+    <div id="registrationModal" class="absolute inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border-2 border-cyan-500/50 rounded-2xl p-6 w-full max-w-md box-glow-cyan relative flex flex-col gap-4">
+            <div class="text-center">
+                <h2 class="font-orbitron font-extrabold text-2xl text-cyan-400 glow-cyan">CYBER ID REGISTRATION</h2>
+                <p class="text-xs text-gray-400 mt-1">Register your details to sync scores with the Live World Leaderboard.</p>
+            </div>
+
+            <form id="regForm" onsubmit="saveRegistration(event)" class="flex flex-col gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-cyan-300 uppercase mb-1">Player Name</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-user-astronaut absolute left-3 top-3 text-cyan-500 text-sm"></i>
+                        <input type="text" id="regName" required maxlength="15" placeholder="Enter Cyber Name" class="w-full bg-slate-950 border border-cyan-800 rounded-lg pl-9 pr-3 py-2 text-sm text-cyan-200 focus:outline-none focus:border-cyan-400">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-cyan-300 uppercase mb-1">Select Country</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-globe absolute left-3 top-3 text-cyan-500 text-sm"></i>
+                        <select id="regCountry" class="w-full bg-slate-950 border border-cyan-800 rounded-lg pl-9 pr-3 py-2 text-sm text-cyan-200 focus:outline-none focus:border-cyan-400 appearance-none">
+                            <option value="BD|🇧🇩">🇧🇩 Bangladesh</option>
+                            <option value="US|🇺🇸">🇺🇸 United States</option>
+                            <option value="JP|🇯🇵">🇯🇵 Japan</option>
+                            <option value="IN|🇮🇳">🇮🇳 India</option>
+                            <option value="GB|🇬🇧">🇬🇧 United Kingdom</option>
+                            <option value="DE|🇩🇪">🇩🇪 Germany</option>
+                            <option value="BR|🇧🇷">🇧🇷 Brazil</option>
+                            <option value="CA|🇨🇦">🇨🇦 Canada</option>
+                            <option value="KR|🇰🇷">🇰🇷 South Korea</option>
+                            <option value="FR|🇫🇷">🇫🇷 France</option>
+                            <option value="AU|🇦🇺">🇦🇺 Australia</option>
+                            <option value="GLOBAL|🌐">🌐 Global / Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-cyan-300 uppercase mb-1">Gmail Address</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-envelope absolute left-3 top-3 text-cyan-500 text-sm"></i>
+                        <input type="email" id="regEmail" required placeholder="player@gmail.com" class="w-full bg-slate-950 border border-cyan-800 rounded-lg pl-9 pr-3 py-2 text-sm text-cyan-200 focus:outline-none focus:border-cyan-400">
+                    </div>
+                </div>
+
+                <button type="submit" class="mt-2 w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl font-orbitron font-extrabold text-white text-sm tracking-wider shadow-lg shadow-cyan-500/30 hover:brightness-110 active:scale-95 transition">
+                    SAVE & CONTINUE <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN START OVERLAY -->
+    <div id="startOverlay" class="absolute inset-0 bg-slate-950/85 backdrop-blur-sm z-40 flex flex-col items-center justify-center p-6 text-center">
+        <div class="max-w-md w-full flex flex-col items-center">
+            <div class="w-16 h-16 rounded-2xl bg-cyan-500/10 border-2 border-cyan-400 flex items-center justify-center mb-3 box-glow-cyan">
+                <i class="fa-solid fa-virus-covid text-3xl text-cyan-400 animate-pulse"></i>
+            </div>
+            
+            <h1 class="font-orbitron font-black text-3xl sm:text-4xl text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-teal-200 to-emerald-400 glow-cyan">
+                NEOM VIRUS
+            </h1>
+            <h2 class="font-orbitron font-extrabold text-lg tracking-widest text-emerald-400 glow-green mb-4">
+                SHOOTER MOBILE
+            </h2>
+
+            <!-- User Badge Banner -->
+            <div class="bg-slate-900/80 border border-cyan-500/30 rounded-xl p-3 w-full mb-4 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <div id="startAvatar" class="w-9 h-9 rounded-full bg-cyan-600 font-orbitron font-bold text-white flex items-center justify-center">?</div>
+                    <div class="text-left">
+                        <div id="startPlayerName" class="font-bold text-sm text-cyan-300">Player Name</div>
+                        <div id="startPlayerEmail" class="text-[11px] text-gray-400">email@gmail.com</div>
+                    </div>
+                </div>
+                <button onclick="openProfileEdit()" class="px-2.5 py-1 text-xs font-bold text-cyan-400 bg-cyan-950/80 border border-cyan-700/60 rounded-lg hover:bg-cyan-900 transition">
+                    <i class="fa-solid fa-pen-to-square"></i> EDIT
+                </button>
+            </div>
+
+            <!-- Controls & Instructions Summary -->
+            <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-3 text-left text-xs text-gray-300 space-y-1.5 w-full mb-5">
+                <p>💥 <b>One-Shot Kill:</b> Shoot down viruses before they reach your ship.</p>
+                <p>⚡ <b>20 Kills Combo:</b> Destroy 20 viruses to auto-trigger <b>+30 HP</b> refill!</p>
+                <p>🧡 <b>Orange Bubbles:</b> Touch healer bubbles for instant <b>+30 HP</b>.</p>
+                <p>🛡️ <b>Auto Power-ups:</b> Collecting buffs grants Shield, 3X Spread, or Speed.</p>
+            </div>
+
+            <div class="flex gap-3 w-full">
+                <button id="startBtn" onclick="startGame()" class="flex-1 py-3.5 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-xl font-orbitron font-extrabold text-slate-950 text-base shadow-lg shadow-emerald-500/40 hover:brightness-110 active:scale-95 transition">
+                    <i class="fa-solid fa-play mr-1"></i> START GAME
+                </button>
+                <button onclick="openLeaderboard()" class="px-4 py-3.5 bg-slate-900 border border-cyan-500/50 text-cyan-300 rounded-xl font-orbitron font-bold text-sm hover:bg-slate-800 active:scale-95 transition">
+                    <i class="fa-solid fa-trophy text-amber-400"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GAME OVER OVERLAY -->
+    <div id="gameOverOverlay" class="absolute inset-0 bg-slate-950/90 backdrop-blur-md z-40 flex flex-col items-center justify-center p-6 text-center hidden">
+        <div class="max-w-md w-full bg-slate-900/90 border-2 border-red-500/50 rounded-2xl p-6 box-glow-cyan relative flex flex-col items-center">
+            <div class="w-14 h-14 rounded-full bg-red-500/20 border border-red-500 flex items-center justify-center mb-2">
+                <i class="fa-solid fa-skull-crossbones text-2xl text-red-500"></i>
+            </div>
+
+            <h2 class="font-orbitron font-black text-2xl text-red-500 tracking-wider mb-1">SYSTEM BREACHED</h2>
+            <p class="text-xs text-gray-400 mb-4">Your shield collapsed under virus infestation!</p>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-2 gap-2.5 w-full mb-5">
+                <div class="bg-slate-950/80 border border-cyan-900/60 p-2.5 rounded-xl">
+                    <div class="text-[10px] text-gray-400 uppercase font-bold">FINAL SCORE</div>
+                    <div id="goScore" class="font-orbitron font-black text-xl text-cyan-300 glow-cyan">0</div>
+                </div>
+                <div class="bg-slate-950/80 border border-cyan-900/60 p-2.5 rounded-xl">
+                    <div class="text-[10px] text-gray-400 uppercase font-bold">WORLD RANK</div>
+                    <div id="goRank" class="font-orbitron font-black text-xl text-emerald-400 glow-green">#--</div>
+                </div>
+                <div class="bg-slate-950/80 border border-cyan-900/60 p-2.5 rounded-xl">
+                    <div class="text-[10px] text-gray-400 uppercase font-bold">SURVIVED TIME</div>
+                    <div id="goTime" class="font-orbitron font-bold text-sm text-amber-300">00:00</div>
+                </div>
+                <div class="bg-slate-950/80 border border-cyan-900/60 p-2.5 rounded-xl">
+                    <div class="text-[10px] text-gray-400 uppercase font-bold">PERSONAL BEST</div>
+                    <div id="goBest" class="font-orbitron font-bold text-sm text-purple-300">0</div>
+                </div>
+            </div>
+
+            <div class="flex gap-3 w-full">
+                <button onclick="startGame()" class="flex-1 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl font-orbitron font-extrabold text-white text-sm shadow-lg shadow-cyan-500/30 hover:brightness-110 active:scale-95 transition">
+                    <i class="fa-solid fa-rotate-right mr-1"></i> PLAY AGAIN
+                </button>
+                <button onclick="openLeaderboard()" class="px-4 py-3 bg-slate-800 border border-cyan-500/50 text-cyan-300 rounded-xl font-orbitron font-bold text-xs hover:bg-slate-700 active:scale-95 transition">
+                    <i class="fa-solid fa-trophy text-amber-400"></i> LEADERBOARD
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GLOBAL LEADERBOARD MODAL -->
+    <div id="leaderboardModal" class="absolute inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border-2 border-cyan-500/50 rounded-2xl p-5 w-full max-w-md h-[85vh] flex flex-col box-glow-cyan relative">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-3">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-trophy text-amber-400 text-xl"></i>
+                    <h3 class="font-orbitron font-extrabold text-lg text-cyan-300">LIVE WORLD RANKINGS</h3>
+                </div>
+                <button onclick="closeLeaderboard()" class="text-gray-400 hover:text-white text-lg px-2">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Leaderboard Items List -->
+            <div id="leaderboardList" class="flex-1 overflow-y-auto space-y-2 pr-1">
+                <div class="text-center py-8 text-gray-500 text-xs">Loading live global scores...</div>
+            </div>
+
+            <div class="pt-3 mt-2 border-t border-slate-800 text-center">
+                <button onclick="closeLeaderboard()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-cyan-300 rounded-xl font-orbitron font-bold text-xs transition">
+                    BACK TO GAME
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Firebase Modular Imports & Integration -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'neom-virus-shooter-android';
+    const firebaseConfig = typeof __firebase_config !== 'undefined' 
+        ? JSON.parse(__firebase_config) 
+        : {
+            apiKey: "demo-api-key",
+            authDomain: "demo-app.firebaseapp.com",
+            projectId: "demo-app",
+            storageBucket: "demo-app.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:demo"
+        };
+
+    let app, auth, db;
+    let currentUser = null;
+    let isFirebaseReady = false;
+
+    // Simulated / Pre-populated realistic global contenders fallback
+    window.globalLeaderboardData = [
+        { name: "CyberNaut", country: "US|🇺🇸", score: 18500, email: "cybernaut@gmail.com" },
+        { name: "Tanvir_BD", country: "BD|🇧🇩", score: 16200, email: "tanvir.cyber@gmail.com" },
+        { name: "Kenji_Neo", country: "JP|🇯🇵", score: 14800, email: "kenji@gmail.com" },
+        { name: "Aarav_In", country: "IN|🇮🇳", score: 13100, email: "aarav@gmail.com" },
+        { name: "Klaus_DE", country: "DE|🇩🇪", score: 11900, email: "klaus@gmail.com" },
+        { name: "Silva_BR", country: "BR|🇧🇷", score: 10400, email: "silva@gmail.com" },
+        { name: "Emma_UK", country: "GB|🇬🇧", score: 9200, email: "emma@gmail.com" },
+        { name: "MinHo_KR", country: "KR|🇰🇷", score: 8100, email: "minho@gmail.com" },
+        { name: "Chloe_FR", country: "FR|🇫🇷", score: 7000, email: "chloe@gmail.com" },
+        { name: "Lucas_CA", country: "CA|🇨🇦", score: 5800, email: "lucas@gmail.com" }
+    ];
+
+    async function initFirebase() {
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+
+            const initialToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+            if (initialToken) {
+                await signInWithCustomToken(auth, initialToken);
+            } else {
+                await signInAnonymously(auth);
+            }
+
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    currentUser = user;
+                    isFirebaseReady = true;
+                    listenToGlobalScores();
+                }
+            });
+        } catch (e) {
+            console.warn("Firebase initialized in standalone/local mode:", e);
+        }
+    }
+
+    function listenToGlobalScores() {
+        if (!db || !currentUser) return;
+        const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard');
+        onSnapshot(colRef, (snapshot) => {
+            let firestoreScores = [];
+            snapshot.forEach((doc) => {
+                firestoreScores.push(doc.data());
+            });
+
+            if (firestoreScores.length > 0) {
+                // Merge firestore scores with default contenders
+                const combined = [...firestoreScores];
+                window.globalLeaderboardData.forEach(defItem => {
+                    if (!combined.some(item => item.email === defItem.email)) {
+                        combined.push(defItem);
+                    }
+                });
+                combined.sort((a, b) => b.score - a.score);
+                window.globalLeaderboardData = combined;
+            }
+            if (window.updateLiveRankDisplay) window.updateLiveRankDisplay();
+            if (window.renderLeaderboardUI) window.renderLeaderboardUI();
+        }, (err) => {
+            console.warn("Firestore error fallback:", err);
+        });
+    }
+
+    window.saveHighScoreToCloud = async function(scoreData) {
+        if (!db || !currentUser || !isFirebaseReady) {
+            // Local saving fallback
+            let existingIdx = window.globalLeaderboardData.findIndex(p => p.email === scoreData.email);
+            if (existingIdx >= 0) {
+                if (scoreData.score > window.globalLeaderboardData[existingIdx].score) {
+                    window.globalLeaderboardData[existingIdx].score = scoreData.score;
+                }
+            } else {
+                window.globalLeaderboardData.push(scoreData);
+            }
+            window.globalLeaderboardData.sort((a, b) => b.score - a.score);
+            return;
+        }
+
+        try {
+            const userDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', currentUser.uid);
+            const existingDoc = await getDoc(userDocRef);
+            if (!existingDoc.exists() || (existingDoc.data().score < scoreData.score)) {
+                await setDoc(userDocRef, {
+                    uid: currentUser.uid,
+                    name: scoreData.name,
+                    country: scoreData.country,
+                    email: scoreData.email,
+                    score: scoreData.score,
+                    updatedAt: Date.now()
+                });
+            }
+        } catch (e) {
+            console.warn("Cloud save error:", e);
+        }
+    };
+
+    initFirebase();
+</script>
+
+<!-- GAME LOGIC AND AUDIO SYNTHESIZER -->
+<script>
+    let playerProfile = {
+        name: '',
+        country: 'BD|🇧🇩',
+        email: '',
+        highScore: 0
+    };
+
+    // Load saved local profile
+    function loadSavedProfile() {
+        const saved = localStorage.getItem('neom_player_profile');
+        if (saved) {
+            try {
+                playerProfile = JSON.parse(saved);
+            } catch(e) {}
+        }
+        updateProfileHUD();
+    }
+
+    function saveRegistration(e) {
+        if (e) e.preventDefault();
+        const name = document.getElementById('regName').value.trim();
+        const country = document.getElementById('regCountry').value;
+        const email = document.getElementById('regEmail').value.trim();
+
+        if (!name || !email) return;
+
+        playerProfile.name = name;
+        playerProfile.country = country;
+        playerProfile.email = email;
+
+        localStorage.setItem('neom_player_profile', JSON.stringify(playerProfile));
+        updateProfileHUD();
+        document.getElementById('registrationModal').classList.add('hidden');
+    }
+
+    function updateProfileHUD() {
+        if (!playerProfile.name) {
+            document.getElementById('registrationModal').classList.remove('hidden');
+            return;
+        }
+
+        const [cCode, cFlag] = playerProfile.country.split('|');
+        const firstLetter = playerProfile.name.charAt(0).toUpperCase();
+
+        document.getElementById('hudAvatar').innerText = firstLetter;
+        document.getElementById('hudPlayerName').innerText = playerProfile.name.toUpperCase();
+        document.getElementById('hudFlag').innerText = cFlag;
+        document.getElementById('hudCountry').innerText = cCode;
+
+        document.getElementById('startAvatar').innerText = firstLetter;
+        document.getElementById('startPlayerName').innerText = playerProfile.name;
+        document.getElementById('startPlayerEmail').innerText = playerProfile.email;
+    }
+
+    function openProfileEdit() {
+        document.getElementById('regName').value = playerProfile.name || '';
+        if (playerProfile.country) document.getElementById('regCountry').value = playerProfile.country;
+        document.getElementById('regEmail').value = playerProfile.email || '';
+        document.getElementById('registrationModal').classList.remove('hidden');
+    }
+
+    // Audio Synthesizer (Web Audio API)
+    let audioCtx = null;
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    }
+
+    function playSound(type) {
+        if (!audioCtx) return;
+        try {
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'shoot') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.exponentialRampToValueAtTime(120, now + 0.08);
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.08);
+                osc.start(now);
+                osc.stop(now + 0.08);
+            } else if (type === 'hit') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.exponentialRampToValueAtTime(30, now + 0.12);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.12);
+                osc.start(now);
+                osc.stop(now + 0.12);
+            } else if (type === 'heal') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.exponentialRampToValueAtTime(880, now + 0.2);
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.2);
+                osc.start(now);
+                osc.stop(now + 0.2);
+            } else if (type === 'powerup') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(350, now);
+                osc.frequency.setValueAtTime(700, now + 0.1);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.2);
+                osc.start(now);
+                osc.stop(now + 0.2);
+            } else if (type === 'gameover') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(40, now + 0.6);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.6);
+                osc.start(now);
+                osc.stop(now + 0.6);
+            }
+        } catch (e) {}
+    }
+
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // Game Core State
+    let isPlaying = false;
+    let score = 0;
+    let killsForHeal = 0;
+    let totalKills = 0;
+    let gameTime = 0;
+    let lastTime = 0;
+
+    let player = {
+        x: canvas.width / 2,
+        y: canvas.height / 2,
+        radius: 16,
+        hp: 150,
+        maxHp: 150,
+        baseSpeed: 4.5,
+        speed: 4.5,
+        angle: 0,
+        shield: false,
+        shieldTimer: 0,
+        multiShot: false,
+        multiShotTimer: 0,
+        speedBoost: false,
+        speedBoostTimer: 0
+    };
+
+    let bullets = [];
+    let enemies = [];
+    let healerUnits = [];
+    let particles = [];
+    let floatingTexts = [];
+
+    let spawnTimer = 0;
+    let healerSpawnTimer = 0;
+    let surgeActive = false;
+
+    // Grid nodes background
+    let gridOffset = 0;
+    let matrixNodes = [];
+    for (let i = 0; i < 30; i++) {
+        matrixNodes.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            vx: (Math.random() - 0.5) * 0.7,
+            vy: (Math.random() - 0.5) * 0.7
+        });
+    }
+
+    // Touch Joystick Controls Setup
+    const joystickBase = document.getElementById('joystickBase');
+    const joystickStick = document.getElementById('joystickStick');
+    const fireBtn = document.getElementById('fireButton');
+
+    let joystick = { active: false, x: 0, y: 0 };
+    let isFiring = false;
+
+    joystickBase.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        joystick.active = true;
+        updateJoystickPos(e.touches[0]);
+    }, { passive: false });
+
+    joystickBase.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        if (joystick.active) updateJoystickPos(e.touches[0]);
+    }, { passive: false });
+
+    function resetJoystick() {
+        joystick.active = false;
+        joystick.x = 0;
+        joystick.y = 0;
+        joystickStick.style.transform = `translate(0px, 0px)`;
+    }
+
+    joystickBase.addEventListener('touchend', resetJoystick);
+    joystickBase.addEventListener('touchcancel', resetJoystick);
+
+    function updateJoystickPos(touch) {
+        const rect = joystickBase.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        let dx = touch.clientX - centerX;
+        let dy = touch.clientY - centerY;
+        const dist = Math.hypot(dx, dy);
+        const maxRadius = rect.width / 2;
+
+        if (dist > maxRadius) {
+            dx = (dx / dist) * maxRadius;
+            dy = (dy / dist) * maxRadius;
+        }
+
+        joystickStick.style.transform = `translate(${dx}px, ${dy}px)`;
+        joystick.x = dx / maxRadius;
+        joystick.y = dy / maxRadius;
+    }
+
+    // Fire Button Touch
+    fireBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        isFiring = true;
+    }, { passive: false });
+
+    fireBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        isFiring = false;
+    }, { passive: false });
+
+    // Keyboard Fallback for PC testing
+    let keys = {};
+    window.addEventListener('keydown', (e) => { keys[e.code] = true; if(e.code === 'Space') isFiring = true; });
+    window.addEventListener('keyup', (e) => { keys[e.code] = false; if(e.code === 'Space') isFiring = false; });
+    
+    let mousePos = { x: canvas.width / 2, y: canvas.height / 2 };
+    canvas.addEventListener('mousemove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        mousePos.x = e.clientX - rect.left;
+        mousePos.y = e.clientY - rect.top;
+    });
+    canvas.addEventListener('mousedown', () => isFiring = true);
+    canvas.addEventListener('mouseup', () => isFiring = false);
+
+    let lastShootTime = 0;
+    function shootGun() {
+        const now = Date.now();
+        if (now - lastShootTime < 110) return;
+        lastShootTime = now;
+
+        playSound('shoot');
+
+        let targetAngle = player.angle;
+        
+        // Auto-aim nearest virus if moving with joystick
+        if (joystick.active && enemies.length > 0) {
+            let closest = null;
+            let minDist = Infinity;
+            enemies.forEach(e => {
+                let d = Math.hypot(e.x - player.x, e.y - player.y);
+                if (d < minDist) {
+                    minDist = d;
+                    closest = e;
+                }
+            });
+            if (closest && minDist < 350) {
+                targetAngle = Math.atan2(closest.y - player.y, closest.x - player.x);
+            }
+        }
+
+        const createBullet = (angleOffset) => {
+            const finalAngle = targetAngle + angleOffset;
+            bullets.push({
+                x: player.x + Math.cos(finalAngle) * 22,
+                y: player.y + Math.sin(finalAngle) * 22,
+                vx: Math.cos(finalAngle) * 12,
+                vy: Math.sin(finalAngle) * 12,
+                radius: 4,
+                life: 65
+            });
+        };
+
+        if (player.multiShot) {
+            createBullet(-0.25);
+            createBullet(0);
+            createBullet(0.25);
+        } else {
+            createBullet(0);
+        }
+
+        // Muzzle particle recoil
+        for (let i = 0; i < 3; i++) {
+            particles.push({
+                x: player.x + Math.cos(targetAngle) * 20,
+                y: player.y + Math.sin(targetAngle) * 20,
+                vx: Math.cos(targetAngle) * 3 + (Math.random() - 0.5) * 2,
+                vy: Math.sin(targetAngle) * 3 + (Math.random() - 0.5) * 2,
+                radius: 2,
+                color: '#00f3ff',
+                life: 10
+            });
+        }
+    }
+
+    function spawnVirus() {
+        let baseSpeed = (1.2 + Math.random() * 0.9) * 0.8;
+        if (surgeActive) baseSpeed *= 1.25;
+
+        let x, y;
+        if (Math.random() < 0.5) {
+            x = Math.random() < 0.5 ? -25 : canvas.width + 25;
+            y = Math.random() * canvas.height;
+        } else {
+            x = Math.random() * canvas.width;
+            y = Math.random() < 0.5 ? -25 : canvas.height + 25;
+        }
+
+        const colors = ['#ff0055', '#ff3300', '#cc00ff'];
+        enemies.push({
+            x: x,
+            y: y,
+            radius: 14 + Math.random() * 5,
+            speed: baseSpeed,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            rotation: 0,
+            rotSpeed: (Math.random() - 0.5) * 0.05
+        });
+    }
+
+    function spawnHealerUnit() {
+        healerUnits.push({
+            x: 50 + Math.random() * (canvas.width - 100),
+            y: 50 + Math.random() * (canvas.height - 100),
+            radius: 14,
+            pulse: 0
+        });
+    }
+
+    function triggerAutoPowerUp() {
+        const buffs = [
+            { name: '3X SPREAD', key: 'multiShot', timerKey: 'multiShotTimer', duration: 400, color: '#ffea00' },
+            { name: 'ENERGY SHIELD', key: 'shield', timerKey: 'shieldTimer', duration: 350, color: '#00f3ff' },
+            { name: 'SPEED BOOST', key: 'speedBoost', timerKey: 'speedBoostTimer', duration: 400, color: '#00ff88' }
+        ];
+
+        const chosen = buffs[Math.floor(Math.random() * buffs.length)];
+        player[chosen.key] = true;
+        player[chosen.timerKey] = chosen.duration;
+
+        playSound('powerup');
+
+        floatingTexts.push({
+            x: player.x,
+            y: player.y - 30,
+            text: `BUFF: ${chosen.name}!`,
+            color: chosen.color,
+            life: 60
+        });
+    }
+
+    function update(dt) {
+        gameTime += dt;
+
+        let surgeCycle = Math.floor(gameTime) % 16;
+        surgeActive = (surgeCycle >= 0 && surgeCycle < 6 && gameTime > 6);
+        document.getElementById('surgeBanner').style.display = surgeActive ? 'block' : 'none';
+
+        // HUD Time & Kills
+        let mins = Math.floor(gameTime / 60).toString().padStart(2, '0');
+        let secs = Math.floor(gameTime % 60).toString().padStart(2, '0');
+        document.getElementById('hudTimer').innerText = `⏱️ ${mins}:${secs}`;
+        document.getElementById('hudKills').innerText = `🎯 ${killsForHeal}/20`;
+        document.getElementById('hudScore').innerText = score;
+
+        // Player Buffs Timers
+        if (player.speedBoostTimer > 0) {
+            player.speedBoostTimer--;
+            player.speed = player.baseSpeed * 1.5;
+        } else {
+            player.speed = player.baseSpeed;
+            player.speedBoost = false;
+        }
+
+        if (player.shieldTimer > 0) player.shieldTimer--;
+        else player.shield = false;
+
+        if (player.multiShotTimer > 0) player.multiShotTimer--;
+        else player.multiShot = false;
+
+        // Render Active Buff Pills
+        const buffContainer = document.getElementById('buffContainer');
+        buffContainer.innerHTML = '';
+        if (player.shield) {
+            buffContainer.innerHTML += `<span class="bg-cyan-500/20 border border-cyan-400 text-cyan-300 text-[9px] font-bold px-2 py-0.5 rounded-full">🛡️ SHIELD</span>`;
+        }
+        if (player.multiShot) {
+            buffContainer.innerHTML += `<span class="bg-amber-500/20 border border-amber-400 text-amber-300 text-[9px] font-bold px-2 py-0.5 rounded-full">⚡ 3X SHOT</span>`;
+        }
+        if (player.speedBoost) {
+            buffContainer.innerHTML += `<span class="bg-emerald-500/20 border border-emerald-400 text-emerald-300 text-[9px] font-bold px-2 py-0.5 rounded-full">🚀 SPEED</span>`;
+        }
+
+        // Movement Vectors
+        let moveX = 0;
+        let moveY = 0;
+
+        if (keys['KeyW'] || keys['ArrowUp']) moveY -= 1;
+        if (keys['KeyS'] || keys['ArrowDown']) moveY += 1;
+        if (keys['KeyA'] || keys['ArrowLeft']) moveX -= 1;
+        if (keys['KeyD'] || keys['ArrowRight']) moveX += 1;
+
+        if (joystick.active) {
+            moveX = joystick.x;
+            moveY = joystick.y;
+        }
+
+        if (moveX !== 0 || moveY !== 0) {
+            let len = Math.hypot(moveX, moveY);
+            player.x += (moveX / (len || 1)) * player.speed;
+            player.y += (moveY / (len || 1)) * player.speed;
+            player.angle = Math.atan2(moveY, moveX);
+        } else if (!joystick.active) {
+            player.angle = Math.atan2(mousePos.y - player.y, mousePos.x - player.x);
+        }
+
+        // Boundary Clamp
+        player.x = Math.max(player.radius, Math.min(canvas.width - player.radius, player.x));
+        player.y = Math.max(player.radius, Math.min(canvas.height - player.radius, player.y));
+
+        if (isFiring) shootGun();
+
+        // Virus Spawning
+        spawnTimer += dt * 1000;
+        let spawnInterval = surgeActive ? 380 : 550;
+        if (spawnTimer >= spawnInterval) {
+            spawnVirus();
+            spawnTimer = 0;
+        }
+
+        // Healer Spawning
+        healerSpawnTimer += dt * 1000;
+        if (healerSpawnTimer >= 14000 && healerUnits.length < 2) {
+            spawnHealerUnit();
+            healerSpawnTimer = 0;
+        }
+
+        // Bullets Logic
+        for (let i = bullets.length - 1; i >= 0; i--) {
+            let b = bullets[i];
+            b.x += b.vx;
+            b.y += b.vy;
+            b.life--;
+            if (b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height || b.life <= 0) {
+                bullets.splice(i, 1);
+            }
+        }
+
+        // Virus Logic & Collision
+        for (let i = enemies.length - 1; i >= 0; i--) {
+            let e = enemies[i];
+            e.rotation += e.rotSpeed;
+
+            let angle = Math.atan2(player.y - e.y, player.x - e.x);
+            e.x += Math.cos(angle) * e.speed;
+            e.y += Math.sin(angle) * e.speed;
+
+            // Bullet - Enemy Collision
+            for (let j = bullets.length - 1; j >= 0; j--) {
+                let b = bullets[j];
+                let dist = Math.hypot(b.x - e.x, b.y - e.y);
+                if (dist < e.radius + b.radius) {
+                    playSound('hit');
+
+                    // Exploding Particles
+                    for (let p = 0; p < 8; p++) {
+                        particles.push({
+                            x: e.x,
+                            y: e.y,
+                            vx: (Math.random() - 0.5) * 6,
+                            vy: (Math.random() - 0.5) * 6,
+                            radius: Math.random() * 3 + 1,
+                            color: e.color,
+                            life: 20
+                        });
+                    }
+
+                    score += 100;
+                    totalKills++;
+                    killsForHeal++;
+
+                    // 20 Kills Bonus
+                    if (killsForHeal >= 20) {
+                        killsForHeal = 0;
+                        player.hp = Math.min(player.maxHp, player.hp + 30);
+                        playSound('heal');
+                        floatingTexts.push({
+                            x: player.x,
+                            y: player.y - 35,
+                            text: "⚡ 20 KILLS BONUS: +30 HP!",
+                            color: "#00ff88",
+                            life: 70
+                        });
+                    }
+
+                    // 15% Chance for Random Auto Buff
+                    if (Math.random() < 0.15) {
+                        triggerAutoPowerUp();
+                    }
+
+                    enemies.splice(i, 1);
+                    bullets.splice(j, 1);
+                    break;
+                }
+            }
+
+            // Enemy - Player Collision
+            if (enemies[i]) {
+                let pDist = Math.hypot(player.x - e.x, player.y - e.y);
+                if (pDist < player.radius + e.radius) {
+                    if (!player.shield) {
+                        player.hp -= 20;
+                        floatingTexts.push({
+                            x: player.x,
+                            y: player.y - 20,
+                            text: "-20 HP",
+                            color: "#ff0055",
+                            life: 40
+                        });
+                    }
+                    enemies.splice(i, 1);
+
+                    if (player.hp <= 0) {
+                        triggerGameOver();
+                        return;
+                    }
+                }
+            }
+        }
+
+        // Healer Bubble Collision
+        for (let i = healerUnits.length - 1; i >= 0; i--) {
+            let h = healerUnits[i];
+            h.pulse += 0.06;
+            let dist = Math.hypot(player.x - h.x, player.y - h.y);
+            if (dist < player.radius + h.radius) {
+                player.hp = Math.min(player.maxHp, player.hp + 30);
+                playSound('heal');
+                floatingTexts.push({
+                    x: player.x,
+                    y: player.y - 25,
+                    text: "+30 HP (HEAL)",
+                    color: "#ff9900",
+                    life: 50
+                });
+                healerUnits.splice(i, 1);
+            }
+        }
+
+        // Particle & Text Updates
+        for (let i = particles.length - 1; i >= 0; i--) {
+            let p = particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            p.life--;
+            if (p.life <= 0) particles.splice(i, 1);
+        }
+
+        for (let i = floatingTexts.length - 1; i >= 0; i--) {
+            let ft = floatingTexts[i];
+            ft.y -= 0.8;
+            ft.life--;
+            if (ft.life <= 0) floatingTexts.splice(i, 1);
+        }
+
+        // Background animations
+        gridOffset = (gridOffset + 0.6) % 30;
+        matrixNodes.forEach(n => {
+            n.x += n.vx;
+            n.y += n.vy;
+            if (n.x < 0 || n.x > canvas.width) n.vx *= -1;
+            if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
+        });
+
+        // Update HP Bar UI
+        document.getElementById('hudHpFill').style.width = `${(Math.max(0, player.hp) / player.maxHp) * 100}%`;
+        document.getElementById('hudHpText').innerText = `${Math.max(0, player.hp)} / ${player.maxHp}`;
+
+        // Live World Rank Calculation
+        updateLiveRankDisplay();
+    }
+
+    function updateLiveRankDisplay() {
+        const allScores = [...(window.globalLeaderboardData || [])];
+        const playerEmail = playerProfile.email || 'current@player.com';
+
+        let existingIdx = allScores.findIndex(p => p.email === playerEmail);
+        if (existingIdx >= 0) {
+            allScores[existingIdx].score = Math.max(allScores[existingIdx].score, score);
+        } else {
+            allScores.push({
+                name: playerProfile.name || 'GUEST',
+                country: playerProfile.country || 'GLOBAL|🌐',
+                score: score,
+                email: playerEmail
+            });
+        }
+
+        allScores.sort((a, b) => b.score - a.score);
+        const rank = allScores.findIndex(p => p.email === playerEmail) + 1;
+        document.getElementById('hudLiveRank').innerText = `#${rank}`;
+        return rank;
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Cyber Grid Lines
+        ctx.strokeStyle = 'rgba(0, 243, 255, 0.05)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x < canvas.width; x += 30) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, canvas.height);
+            ctx.stroke();
+        }
+        for (let y = gridOffset; y < canvas.height; y += 30) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(canvas.width, y);
+            ctx.stroke();
+        }
+
+        // Web Node Connections
+        ctx.strokeStyle = 'rgba(0, 243, 255, 0.1)';
+        for (let i = 0; i < matrixNodes.length; i++) {
+            for (let j = i + 1; j < matrixNodes.length; j++) {
+                let dist = Math.hypot(matrixNodes[i].x - matrixNodes[j].x, matrixNodes[i].y - matrixNodes[j].y);
+                if (dist < 120) {
+                    ctx.beginPath();
+                    ctx.moveTo(matrixNodes[i].x, matrixNodes[i].y);
+                    ctx.lineTo(matrixNodes[j].x, matrixNodes[j].y);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        // Render Orange Healer Bubbles
+        healerUnits.forEach(h => {
+            let r = h.radius + Math.sin(h.pulse) * 2.5;
+            ctx.fillStyle = '#ff9900';
+            ctx.shadowColor = '#ff9900';
+            ctx.shadowBlur = 15;
+            ctx.beginPath();
+            ctx.arc(h.x, h.y, r, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 11px Orbitron';
+            ctx.textAlign = 'center';
+            ctx.fillText('+HP', h.x, h.y + 4);
+            ctx.shadowBlur = 0;
+        });
+
+        // Render Bullets
+        ctx.fillStyle = '#00f3ff';
+        ctx.shadowColor = '#00f3ff';
+        ctx.shadowBlur = 10;
+        bullets.forEach(b => {
+            ctx.beginPath();
+            ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        ctx.shadowBlur = 0;
+
+        // Render Virus Enemies
+        enemies.forEach(e => {
+            ctx.save();
+            ctx.translate(e.x, e.y);
+            ctx.rotate(e.rotation);
+
+            ctx.fillStyle = e.color;
+            ctx.shadowColor = e.color;
+            ctx.shadowBlur = 12;
+
+            // Spiked Virus Shape
+            ctx.beginPath();
+            const spikes = 6;
+            for (let i = 0; i < spikes * 2; i++) {
+                const r = (i % 2 === 0) ? e.radius : e.radius * 0.6;
+                const a = (i / spikes) * Math.PI;
+                const x = Math.cos(a) * r;
+                const y = Math.sin(a) * r;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.restore();
+            ctx.shadowBlur = 0;
+        });
+
+        // Render Player Ship
+        ctx.save();
+        ctx.translate(player.x, player.y);
+
+        // Shield Halo Effect
+        if (player.shield) {
+            ctx.strokeStyle = '#00f3ff';
+            ctx.lineWidth = 3;
+            ctx.shadowColor = '#00f3ff';
+            ctx.shadowBlur = 18;
+            ctx.beginPath();
+            ctx.arc(0, 0, player.radius + 10, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+        }
+
+        ctx.rotate(player.angle);
+
+        // Canon Turret
+        ctx.fillStyle = '#64748b';
+        ctx.fillRect(0, -3, 22, 6);
+
+        // Cyber Ship Body
+        ctx.fillStyle = '#00ff88';
+        ctx.shadowColor = '#00ff88';
+        ctx.shadowBlur = 14;
+        ctx.beginPath();
+        ctx.arc(0, 0, player.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+        ctx.shadowBlur = 0;
+
+        // Particles & Floating Text
+        particles.forEach(p => {
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        ctx.font = 'bold 12px Rajdhani';
+        ctx.textAlign = 'center';
+        floatingTexts.forEach(ft => {
+            ctx.fillStyle = ft.color;
+            ctx.fillText(ft.text, ft.x, ft.y);
+        });
+    }
+
+    function gameLoop(time) {
+        if (!isPlaying) return;
+
+        let dt = (time - lastTime) / 1000;
+        if (isNaN(dt) || dt > 0.1) dt = 0.016;
+        lastTime = time;
+
+        update(dt);
+        draw();
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    function startGame() {
+        if (!playerProfile.name) {
+            document.getElementById('registrationModal').classList.remove('hidden');
+            return;
+        }
+
+        initAudio();
+        isPlaying = true;
+        score = 0;
+        killsForHeal = 0;
+        totalKills = 0;
+        gameTime = 0;
+        player.hp = 150;
+        player.x = canvas.width / 2;
+        player.y = canvas.height / 2;
+
+        bullets = [];
+        enemies = [];
+        healerUnits = [];
+        particles = [];
+        floatingTexts = [];
+
+        document.getElementById('startOverlay').classList.add('hidden');
+        document.getElementById('gameOverOverlay').classList.add('hidden');
+
+        lastTime = performance.now();
+        requestAnimationFrame(gameLoop);
+    }
+
+    async function triggerGameOver() {
+        isPlaying = false;
+        playSound('gameover');
+
+        const finalRank = updateLiveRankDisplay();
+
+        if (score > (playerProfile.highScore || 0)) {
+            playerProfile.highScore = score;
+            localStorage.setItem('neom_player_profile', JSON.stringify(playerProfile));
+        }
+
+        // Save high score to Firestore / Global state
+        if (window.saveHighScoreToCloud) {
+            await window.saveHighScoreToCloud({
+                name: playerProfile.name,
+                country: playerProfile.country,
+                email: playerProfile.email,
+                score: score
+            });
+        }
+
+        let mins = Math.floor(gameTime / 60).toString().padStart(2, '0');
+        let secs = Math.floor(gameTime % 60).toString().padStart(2, '0');
+
+        document.getElementById('goScore').innerText = score;
+        document.getElementById('goRank').innerText = `#${finalRank}`;
+        document.getElementById('goTime').innerText = `${mins}:${secs}`;
+        document.getElementById('goBest').innerText = playerProfile.highScore || score;
+
+        document.getElementById('gameOverOverlay').classList.remove('hidden');
+    }
+
+    window.renderLeaderboardUI = function() {
+        const listContainer = document.getElementById('leaderboardList');
+        const data = window.globalLeaderboardData || [];
+        const playerEmail = playerProfile.email || 'current@player.com';
+
+        if (data.length === 0) {
+            listContainer.innerHTML = `<div class="text-center py-8 text-gray-500 text-xs">No records registered yet. Be the first!</div>`;
+            return;
+        }
+
+        let html = '';
+        data.slice(0, 15).forEach((item, index) => {
+            const isSelf = (item.email === playerEmail);
+            const rankNum = index + 1;
+            const [cCode, cFlag] = (item.country || 'GLOBAL|🌐').split('|');
+
+            let rankBadge = `<span class="font-bold text-gray-400 text-sm w-6">#${rankNum}</span>`;
+            if (rankNum === 1) rankBadge = `<i class="fa-solid fa-crown text-amber-400 text-base w-6"></i>`;
+            else if (rankNum === 2) rankBadge = `<i class="fa-solid fa-medal text-slate-300 text-base w-6"></i>`;
+            else if (rankNum === 3) rankBadge = `<i class="fa-solid fa-award text-amber-600 text-base w-6"></i>`;
+
+            html += `
+                <div class="flex items-center justify-between p-2.5 rounded-xl border ${isSelf ? 'bg-cyan-950/80 border-cyan-400 box-glow-cyan' : 'bg-slate-950/60 border-slate-800'}">
+                    <div class="flex items-center gap-2.5 truncate">
+                        ${rankBadge}
+                        <div class="w-7 h-7 rounded-full bg-cyan-600/30 border border-cyan-500/50 flex items-center justify-center font-orbitron font-bold text-xs text-cyan-300">
+                            ${(item.name || '?').charAt(0).toUpperCase()}
+                        </div>
+                        <div class="flex flex-col truncate">
+                            <span class="font-bold text-xs ${isSelf ? 'text-cyan-300' : 'text-gray-200'} truncate">${item.name || 'Anonymous'}</span>
+                            <span class="text-[10px] text-gray-400">${cFlag} ${cCode}</span>
+                        </div>
+                    </div>
+                    <span class="font-orbitron font-black text-sm text-cyan-400 glow-cyan pl-2">${item.score}</span>
+                </div>
+            `;
+        });
+
+        listContainer.innerHTML = html;
+    };
+
+    function openLeaderboard() {
+        window.renderLeaderboardUI();
+        document.getElementById('leaderboardModal').classList.remove('hidden');
+    }
+
+    function closeLeaderboard() {
+        document.getElementById('leaderboardModal').classList.add('hidden');
+    }
+
+    window.onload = function() {
+        loadSavedProfile();
+        window.renderLeaderboardUI();
+    };
+</script>
+</body>
+</html>
